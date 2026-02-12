@@ -9,7 +9,7 @@ namespace RedShoreGames.EventSystem
     public class EventManager : MonoBehaviour
     {
         public static EventManager Instance;
-        
+
         private Dictionary<string, List<Event>> _events = new();
 
         private void Awake()
@@ -42,7 +42,8 @@ namespace RedShoreGames.EventSystem
 
             List<KeyValuePair<string, List<Event>>> events = _events.Where(x => x.Key == eventName).ToList();
 
-            foreach (Event @event in events.Select(myEvent => myEvent.Value.ToList()).SelectMany(eventList => eventList))
+            foreach (Event @event in events.Select(myEvent => myEvent.Value.ToList())
+                         .SelectMany(eventList => eventList))
             {
                 @event?.Invoke(arguments);
             }
@@ -67,17 +68,12 @@ namespace RedShoreGames.EventSystem
 
         public void Unregister(string eventName, Event @event)
         {
-            List<Event> events = _events[eventName];
+            if (!_events.TryGetValue(eventName, out var events)) return;
 
-            if (events.Count > 0)
-            {
-                events.Remove(@event);
-            }
+            events.Remove(@event);
 
             if (events.Count == 0)
-            {
                 _events.Remove(eventName);
-            }
         }
     }
 }
